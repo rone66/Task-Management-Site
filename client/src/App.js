@@ -184,7 +184,7 @@ function App() {
     setEditing(false);
     console.log(option);
     const url=API+'/update/'+Id;
-    const task= await axios.put(url,option).then(res=>(res.data.taskData))..catch(err=>(console.log("error in fetching update task",err)));
+    const task= await axios.put(url,option).then(res=>(res.data.taskData)).catch(err=>(console.log("error in fetching update task",err)));
 
     let savedCompletedTasks = await task.filter((item) => item.status === "completed");
     let savedPendingTasks = await task.filter((item) => item.status === "pending")
