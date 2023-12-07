@@ -5,7 +5,7 @@ import { BsCheckLg } from 'react-icons/bs';
 import { MdEdit } from "react-icons/md";
 import axios from 'axios';
 import logo from './asset/digitalavenues_logo.jpeg';
-let API = "http://localhost:4000/api/v1"
+let API = "https://taskmanagement-backend-6hjp.onrender.com/api/v1"
 
 function App() {
   const [newTaskTitle, setNewTaskTitle] = useState('');
@@ -18,14 +18,14 @@ function App() {
   const [taskData,setTaskData]=useState({});
   const [Id,setId]=useState('');
 
-
+// to fetch all task data
   const getAllTask = async () => {
     const url = API + "/gettask";
     let savedCompletedTasks;
     let savedPendingTasks;
     let savedTasks;
     (async () => {
-      savedTasks = await axios.get(url).then(res => (res.data.tasks));
+      savedTasks = await axios.get(url).then(res => (res.data.tasks)).catch(err=>(console.log("error in fetching all tasks",err)));
       savedCompletedTasks = await savedTasks.filter((item) => item.status === "completed");
       savedPendingTasks = await savedTasks.filter((item) => item.status === "pending")
 
@@ -46,6 +46,7 @@ function App() {
 
   }, []);
 
+//to push a new task in mongodb storage
   const handleAddNewTask = async () => {
     let newTaskObj = {
       title: newTaskTitle,
@@ -58,7 +59,9 @@ function App() {
 
     const url = API + "/createTask"
     const data = await axios.post(url, newTaskObj)
-      .then(res => (res.data.task));
+      .then(res => (res.data.task))
+      .catch(err=>(console.log("error in create a new tasks",err)))
+      ;
 
     let savedCompletedTasks = await data.filter((item) => item.status === "completed");
     let savedPendingTasks = await data.filter((item) => item.status === "pending")
@@ -81,6 +84,7 @@ function App() {
 
   };
 
+//delete specific task
   const handleTaskDelete = async (id) => {
 
     console.log(id);
@@ -88,7 +92,10 @@ function App() {
     const url = API + "/delete/" + id;
 
 
-    let taskData = await axios.delete(url).then((res) => (res.data.task));
+    let taskData = await axios.delete(url)
+    .then((res) => (res.data.task))
+    .catch(err=>(console.log("error in delete tasks",err)))
+    ;
     console.log(taskData);
 
     let savedCompletedTasks = await taskData.filter((item) => item.status === "completed");
@@ -106,11 +113,13 @@ function App() {
 
   };
 
+//delete completed task
   const handleCompletedTaskDelete = (id) => {
 
     handleTaskDelete(id);
   };
 
+//update status of thask
   const handleComplete = async (id) => {
     const date = new Date();
     var dd = date.getDate();
@@ -130,7 +139,7 @@ function App() {
     }
 
     const url = API + "/updateStatus/" + id;
-    const task = await axios.put(url, option).then(res => (res.data.task));
+    const task = await axios.put(url, option).then(res => (res.data.task)).catch(err=>(console.log("error in update task status",err)));
     let savedCompletedTasks = await task.filter((item) => item.status === "completed");
     let savedPendingTasks = await task.filter((item) => item.status === "pending")
 
@@ -144,9 +153,10 @@ function App() {
 
   };
 
+//edit specific task data
   const handleEditTask = async (id) => {
       const url=API+'/task/'+id;
-      const taskData= await axios(url).then(res=>(res.data.task));
+      const taskData= await axios(url).then(res=>(res.data.task)).catch(err=>(console.log("error in fetching specific task data",err)));
       console.log(taskData);
        setTaskData(taskData);
        setEditing(true);
@@ -161,7 +171,7 @@ function App() {
     const {name,value}=e.target;
     setTaskData((prev)=>({...prev,[name]:value}))
   }
-
+//update edited specific task data
   const handleUpdateTask =async(e)=>{
     // e.preventDefault();
     console.log(taskData,Id);
@@ -174,7 +184,7 @@ function App() {
     setEditing(false);
     console.log(option);
     const url=API+'/update/'+Id;
-    const task= await axios.put(url,option).then(res=>(res.data.taskData));
+    const task= await axios.put(url,option).then(res=>(res.data.taskData))..catch(err=>(console.log("error in fetching update task",err)));
 
     let savedCompletedTasks = await task.filter((item) => item.status === "completed");
     let savedPendingTasks = await task.filter((item) => item.status === "pending")
@@ -199,7 +209,7 @@ function App() {
 
       <div className="task-wrapper">
 
-        
+        {/* conditional rendering for edit task and add task */}
           {
             editing ? 
             (<div className='task-input'>
@@ -291,7 +301,7 @@ function App() {
             )
           }
         
-
+          {/* pending and completed button */}
         <div className="btn-area">
           <button
             className={`secondaryBtn ${isCompletedScreen === false && 'active'}`}
